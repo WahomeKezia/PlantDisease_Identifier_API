@@ -5,6 +5,7 @@ import torch
 from torchvision.transforms import transforms
 import torch.nn as nn
 import torch.nn.functional as F
+import pandas as pd 
 
 num_diseases = 38
 
@@ -165,20 +166,37 @@ def classify_image(image):
 
     return top6_probabilities, top6_classes
 
+
 # Streamlit app layout
-st.title("Image Classification Web App")
-uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+def main():
+    st.title("Plant Disease Classification Web App")
+    st.sidebar.title("Options")
 
-if uploaded_file is not None:
-    image = Image.open(uploaded_file)
-    st.image(image, caption="Uploaded Image.", use_column_width=True)
-    st.write("")
-    st.write("Classifying...")
+    uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
-    # Perform image classification
-    top6_probabilities, top6_classes = classify_image(image)
+    if uploaded_file:
+        image = Image.open(uploaded_file)
+        st.image(image, caption="Uploaded Image.", use_column_width=True)
+        st.write("")
+        st.write("Classifying...")
 
-    # Display top 6 predictions
-    st.subheader("Top 6 Predictions:")
-    for prob, class_name in zip(top6_probabilities, top6_classes):
-        st.write(f"{class_name}: {prob.item()*100:.2f}%")
+        # Perform image classification
+        top6_probabilities, top6_classes = classify_image(image)
+
+        # Display top prediction
+        top_prediction = top6_classes[0]
+        st.subheader("Top Prediction:")
+        st.write(f"The top prediction is: {top_prediction}")
+
+        # Display top 6 predictions in a DataFrame
+        df = pd.DataFrame({"Class": top6_classes, "Probability": top6_probabilities.numpy()})
+        
+        st.subheader("Top 6 Predictions:")
+        st.dataframe(df)
+
+        # Plot the predictions on a bar chart
+        st.subheader("Top 6 Predictions (Bar Chart):")
+        st.bar_chart(df.set_index("Class"))
+
+if __name__ == "__main__":
+    main()
