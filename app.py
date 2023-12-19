@@ -168,9 +168,43 @@ def classify_image(image):
 
     return top6_probabilities, top6_classes
 
+# Function to rotate an image by a specified angle
+def rotate_image(image, angle):
+    return image.rotate(angle)
+
+# Function to convert an image to base64
+def image_to_base64(image):
+    buffered = io.BytesIO()
+    image.save(buffered, format="PNG")
+    return base64.b64encode(buffered.getvalue()).decode("utf-8")
+
+# Function to create a rotating image in Streamlit
+def rotating_image(image, rotation_angle, rotation_speed):
+    # Convert the image to base64
+    image_base64 = image_to_base64(image)
+
+    # Display the rotating image using HTML and JavaScript
+    st.markdown(
+        f"""
+        <div style="display: inline-block; overflow: hidden;">
+            <img id="rotating-image" src="data:image/png;base64,{image_base64}" style="transform-origin: center center; transition: transform {rotation_speed}s linear;">
+            <script>
+                function rotateImage() {{
+                    var image = document.getElementById('rotating-image');
+                    image.style.transform = 'rotate(' + {rotation_angle} + 'deg)';
+                    setTimeout(rotateImage, {rotation_speed * 1000});
+                }}
+                rotateImage();
+            </script>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
 
 # Streamlit app layout
-def main():
+def main():\
+
  # Load your logo image from the root directory
     logo_image = Image.open("logo.png")  # Replace "logo.png" with the actual filename of your logo
     
