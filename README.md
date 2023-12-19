@@ -15,4 +15,7 @@ Explore the world of plant disease identification and contribute to the developm
 
 ![image](https://github.com/WahomeKezia/PlantDisease_Identifier_API/assets/90443938/cfb0e9d5-be85-4b98-90aa-3fbf84b7e2ad)
 
+##Deployment 
+
+Available here : https://plantdiseaseidentifierapi-juhnzakket7henjd4l7afy.streamlit.app/
 
