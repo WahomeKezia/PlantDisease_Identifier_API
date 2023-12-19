@@ -1,4 +1,6 @@
 # app.py
+import base64
+import io
 import streamlit as st
 from PIL import Image
 import torch
@@ -169,34 +171,81 @@ def classify_image(image):
 
 # Streamlit app layout
 def main():
-    st.title("Plant Disease Classification Web App")
-    st.sidebar.title("Options")
+ # Load your logo image from the root directory
+    logo_image = Image.open("logo.png")  # Replace "logo.png" with the actual filename of your logo
+    
+    # Convert the logo image to base64
+    buffered = io.BytesIO()
+    logo_image.save(buffered, format="PNG")
+    logo_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
 
+    # Display the title and rotating logo image in the same row
+    st.markdown(
+        '<div style="display: flex; align-items: center;">'
+        f'<img id="rotating-image" src="data:image/png;base64,{logo_base64}" style="width: 100px; height: 100px;">'
+        '<h1 style="margin-left: 20px;">Plant Disease Classification Web App</h1>'
+        '</div>'
+        '<script>'
+        'function rotateImage() {'
+        'const rotatingImage = document.getElementById("rotating-image");'
+        'rotatingImage.style.transform = "rotate(" + (new Date().getTime() / 1000) + "deg)";'
+        'requestAnimationFrame(rotateImage);'
+        '}'
+        'rotateImage();'
+        '</script>',
+        unsafe_allow_html=True
+    )
+
+    # Introductory message
+    st.markdown(
+        """
+        Welcome to our Plant Disease Detection website powered by artificial intelligence.
+        Upload an image of a plant leaf, and our advanced AI model will analyze it to identify 
+        any signs of common diseases. This technology enables early detection, prevention, and 
+        effective treatment of plant diseases, contributing to healthier crops and increased 
+        agricultural productivity.
+        """
+    )
+
+    # Thin green line separator
+    st.markdown('<hr style="border-top: 2px solid #13bf4a;">', unsafe_allow_html=True)
+
+    # Image upload section
+    st.title("Upload Image")
+    st.markdown(
+        """
+        Please upload an image of the affected plant leaf here.
+
+        Our AI model will analyze the image and accurately identify any signs of disease.
+        """
+    )
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
     if uploaded_file:
+        # Display uploaded image
         image = Image.open(uploaded_file)
         st.image(image, caption="Uploaded Image.", use_column_width=True)
         st.write("")
-        st.write("Classifying...")
 
-        # Perform image classification
-        top6_probabilities, top6_classes = classify_image(image)
+        # Predict button
+        if st.button("Predict"):
+            # Perform image classification
+            top6_probabilities, top6_classes = classify_image(image)
 
-        # Display top prediction
-        top_prediction = top6_classes[0]
-        st.subheader("Top Prediction:")
-        st.write(f"The top prediction is: {top_prediction}")
+            # Display top prediction
+            top_prediction = top6_classes[0]
+            st.subheader("Top Prediction:")
+            st.write(f"The top prediction is: {top_prediction}")
 
-        # Display top 6 predictions in a DataFrame
-        df = pd.DataFrame({"Class": top6_classes, "Probability": top6_probabilities.numpy()})
-        
-        st.subheader("Top 6 Predictions:")
-        st.dataframe(df)
+            # Display top 6 predictions in a DataFrame
+            df = pd.DataFrame({"Class": top6_classes, "Probability": top6_probabilities.numpy()})
+            
+            st.subheader("Top 6 Predictions:")
+            st.dataframe(df)
 
-        # Plot the predictions on a bar chart
-        st.subheader("Top 6 Predictions (Bar Chart):")
-        st.bar_chart(df.set_index("Class"))
+            # Plot the predictions on a bar chart
+            st.subheader("Top 6 Predictions (Bar Chart):")
+            st.bar_chart(df.set_index("Class"))
 
 if __name__ == "__main__":
     main()
