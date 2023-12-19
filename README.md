@@ -11,3 +11,5 @@ Key Features:
 - Confidence threshold for filtering predictions
 
 Explore the world of plant disease identification and contribute to the development of more robust models for agricultural applications.
+![Uploading image.png…]()
+
